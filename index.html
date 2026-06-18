@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0f0d0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Personal OS">
+<title>Personal OS</title>
+<style>
+:root{--bg:#0f0d0a;--bg2:#1a1714;--bg3:#252118;--bg4:#2e2a20;--border:rgba(201,168,76,0.12);--border2:rgba(255,255,255,0.06);--text:#f0ebe0;--text2:#9a9080;--text3:#5a5040;--gold:#c9a84c;--gold2:#f5d98b;--gold3:#8B6914;--brown:#8B5E3C;--brown2:#c4956a;--green:#4ade80;--red:#f87171;--amber:#fbbf24;--r:16px;--rs:10px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100%;height:-webkit-fill-available;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+
+.hdr{padding:14px 18px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--border2)}
+.hdr-left{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;flex-shrink:0}
+.hdr-title{font-size:17px;font-weight:600;letter-spacing:-.3px}
+.hdr-date{font-size:12px;color:var(--text2);margin-top:1px}
+.nav{display:flex;gap:5px}
+.nb{background:var(--bg3);border:none;border-radius:50%;width:30px;height:30px;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+.tabs{display:flex;margin:10px 14px 0;background:var(--bg2);border-radius:var(--rs);padding:3px;flex-shrink:0;border:1px solid var(--border2)}
+.tab{flex:1;text-align:center;padding:7px 2px;font-size:11px;font-weight:500;color:var(--text2);border-radius:7px;cursor:pointer;transition:all .2s;line-height:1.3}
+.tab.on{background:var(--bg4);color:var(--gold2)}
+
+.cnt{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.pnl{display:none;padding:14px 15px 52px}
+.pnl.on{display:block}
+
+/* SECTION LABEL */
+.sl{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;margin:18px 0 9px}
+.sl:first-child{margin-top:0}
+
+/* CARD & ITEMS */
+.card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden;margin-bottom:9px}
+.card-hdr{padding:11px 15px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border2)}
+.badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;letter-spacing:.3px;flex-shrink:0}
+.b-p0{background:rgba(248,113,113,.15);color:#fca5a5}
+.b-p1{background:rgba(201,168,76,.15);color:var(--gold2)}
+.b-p2{background:rgba(255,255,255,.06);color:var(--text2)}
+.card-hdr-title{font-size:13px;font-weight:600;color:var(--text);flex:1}
+
+.item{display:flex;align-items:flex-start;gap:10px;padding:11px 15px;border-bottom:1px solid var(--border2);cursor:pointer;transition:background .15s}
+.item:last-child{border-bottom:none}
+.item:active{background:var(--bg3)}
+.item.done .i-text{text-decoration:line-through;color:var(--text3)}
+.item.done .i-sub{color:var(--text3)}
+.i-chk{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--text3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .18s}
+.item.done .i-chk{background:var(--gold);border-color:var(--gold)}
+.i-chk-ic{display:none;font-size:11px;color:#000;font-weight:800}
+.item.done .i-chk-ic{display:block}
+.i-body{flex:1}
+.i-text{font-size:14px;color:var(--text);line-height:1.4}
+.i-sub{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.4}
+.i-indicator{font-size:11px;color:var(--gold3);margin-top:4px;line-height:1.4}
+.i-right{font-size:11px;color:var(--text3);flex-shrink:0;margin-top:2px}
+
+/* SCORE */
+.score-strip{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:13px 16px;display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.score-big{font-size:30px;font-weight:700;line-height:1}
+.score-denom{font-size:13px;color:var(--text3)}
+.s-right{flex:1}
+.s-track{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:5px}
+.s-fill{height:100%;border-radius:3px;transition:width .4s}
+.s-msg{font-size:12px;color:var(--text2)}
+
+/* PROGRESS CARD */
+.prog-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:9px}
+.prog-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.prog-count{font-size:14px;font-weight:700}
+.prog-track{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:5px}
+.prog-fill{height:100%;border-radius:3px;transition:width .5s}
+.prog-sub{font-size:11px;color:var(--text3)}
+
+/* WEEK GRID */
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:14px}
+.wday{text-align:center}
+.wday-lbl{font-size:10px;color:var(--text3);margin-bottom:4px}
+.wday-pill{height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-c{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px}
+.stat-v{font-size:22px;font-weight:700}
+.stat-l{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* RULES */
+.rule{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rs);padding:12px 14px;display:flex;gap:10px;margin-bottom:8px}
+.rule.keep{border-color:rgba(74,222,128,.2)}
+.rule.cut{border-color:rgba(248,113,113,.15)}
+.rule.deadline{border-color:rgba(201,168,76,.25)}
+.ri{font-size:15px;flex-shrink:0}
+.rt{font-size:13px;color:var(--text2);line-height:1.5}
+.rt strong{color:var(--text);font-weight:500}
+.mode-c{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rs);padding:12px 14px;margin-bottom:7px}
+.mode-t{font-size:13px;font-weight:600;margin-bottom:3px}
+.mode-d{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* PLAN DU JOUR */
+.plan-context{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.ctx-pill{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;cursor:pointer;transition:all .18s;font-family:inherit;border:1px solid var(--border2)}
+.ctx-pill.on{border-color:var(--gold);background:rgba(201,168,76,.08)}
+.ctx-pill-label{font-size:10px;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;display:block;margin-bottom:3px}
+.ctx-pill-val{font-size:13px;color:var(--text2);font-weight:500}
+.ctx-pill.on .ctx-pill-val{color:var(--gold2)}
+.ctx-selector{display:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:8px;margin-top:6px;margin-bottom:6px}
+.ctx-selector.open{display:block}
+.ctx-options{display:flex;flex-wrap:wrap;gap:6px}
+.ctx-opt{padding:6px 12px;border-radius:99px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.ctx-opt.on{background:var(--gold3);border-color:var(--gold);color:var(--gold2)}
+.gen-plan-btn{width:100%;background:linear-gradient(135deg,var(--gold3),var(--brown));border:none;border-radius:var(--rs);color:var(--gold2);font-size:15px;font-weight:600;padding:15px;cursor:pointer;font-family:inherit;margin-bottom:14px;letter-spacing:.2px}
+.gen-plan-btn:active{opacity:.8}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:flex-end}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px 18px 40px;width:100%;max-height:85vh;overflow-y:auto;border-top:1px solid var(--border)}
+.modal-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--text2);margin-bottom:14px}
+.modal-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;display:block;margin-top:12px}
+.modal-in{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:11px 13px;color:var(--text);font-size:14px;font-family:inherit;resize:none;line-height:1.5}
+.modal-in:focus{outline:none;border-color:var(--gold3)}
+.modal-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.modal-pill{padding:7px 13px;border-radius:99px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.modal-pill.on{background:var(--gold3);border-color:var(--gold);color:var(--gold2)}
+.modal-row{display:flex;gap:8px;margin-top:14px}
+.modal-btn{flex:1;padding:13px;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;border:none}
+.modal-cancel{background:var(--bg3);color:var(--text2)}
+.modal-save{background:linear-gradient(135deg,var(--gold3),var(--brown));color:var(--gold2)}
+
+/* ADD BTN */
+.add-btn{width:100%;background:transparent;border:1px dashed var(--border2);border-radius:var(--rs);padding:12px;color:var(--text3);font-size:13px;cursor:pointer;font-family:inherit;margin-top:2px;transition:all .15s}
+.add-btn:active{background:var(--bg2)}
+
+/* INSTALL */
+.ib{margin:8px 14px 0;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:var(--rs);padding:10px 13px;display:none;flex-shrink:0}
+.ib-row{display:flex;align-items:center;gap:8px}
+.ib-p{font-size:13px;color:var(--gold);flex:1}
+.ib-btn{background:var(--gold);border:none;color:#0f0d0a;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.ib-hint{font-size:11px;color:rgba(201,168,76,.5);margin-top:4px;line-height:1.4}
+
+.note-lbl{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;margin-top:14px;display:block}
+.note-in{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rs);padding:11px 13px;color:var(--text);font-size:13px;font-family:inherit;resize:none;line-height:1.5}
+.note-in::placeholder{color:var(--text3)}
+.note-in:focus{outline:none;border-color:var(--gold3)}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="hdr">
+    <div class="hdr-left">
+      <svg class="logo" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="34" height="34" rx="8" fill="#1a1510"/>
+        <g transform="translate(17,17)">
+          <polygon points="0,-9.5 2.2,-3.6 8.1,-3.6 3.5,0.5 5.3,6.6 0,3.1 -5.3,6.6 -3.5,0.5 -8.1,-3.6 -2.2,-3.6" fill="url(#g1)"/>
+          <polygon points="0,-5 1.2,-1.8 4.4,-1.8 2,0.3 2.9,3.5 0,1.7 -2.9,3.5 -2,0.3 -4.4,-1.8 -1.2,-1.8" fill="#4a2e08" opacity="0.65"/>
+          <circle cx="0" cy="0" r="1.2" fill="#f5d98b" opacity="0.95"/>
+        </g>
+        <defs><linearGradient id="g1" x1="-8" y1="-9" x2="8" y2="9" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#f5d98b"/><stop offset="55%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#7a4f28"/></linearGradient></defs>
+      </svg>
+      <div><div class="hdr-title">Personal OS</div><div class="hdr-date" id="hdate"></div></div>
+    </div>
+    <div class="nav">
+      <button class="nb" onclick="cd(-1)">‹</button>
+      <button class="nb" onclick="cd(1)">›</button>
+    </div>
+  </div>
+
+  <div class="ib" id="ib">
+    <div class="ib-row"><span class="ib-p">📲 Installer sur l'écran d'accueil</span><button class="ib-btn" id="ibtn">Installer</button></div>
+    <div class="ib-hint" id="ibhint"></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" onclick="sw('day',this)">Plan du jour</div>
+    <div class="tab" onclick="sw('habits',this)">Habitudes</div>
+    <div class="tab" onclick="sw('goals',this)">Objectifs</div>
+    <div class="tab" onclick="sw('week',this)">Semaine</div>
+    <div class="tab" onclick="sw('rules',this)">Règles</div>
+  </div>
+
+  <div class="cnt">
+
+    <!-- ═══ PLAN DU JOUR ═══ -->
+    <div id="p-day" class="pnl on">
+
+      <div class="sl" style="margin-top:0">Mon contexte du moment</div>
+      <div class="plan-context">
+        <button class="ctx-pill" id="ctx-energy" onclick="openCtx('energy')">
+          <span class="ctx-pill-label">Énergie</span>
+          <span class="ctx-pill-val" id="val-energy">Choisir</span>
+        </button>
+        <button class="ctx-pill" id="ctx-time" onclick="openCtx('time')">
+          <span class="ctx-pill-label">Temps dispo</span>
+          <span class="ctx-pill-val" id="val-time">Choisir</span>
+        </button>
+        <button class="ctx-pill" id="ctx-load" onclick="openCtx('load')">
+          <span class="ctx-pill-label">Charge</span>
+          <span class="ctx-pill-val" id="val-load">Choisir</span>
+        </button>
+        <button class="ctx-pill" id="ctx-focus" onclick="openCtx('focus')">
+          <span class="ctx-pill-label">Focus</span>
+          <span class="ctx-pill-val" id="val-focus">Choisir</span>
+        </button>
+      </div>
+
+      <div class="ctx-selector" id="sel-energy">
+        <div class="ctx-options">
+          <button class="ctx-opt" onclick="setCtx('energy','😴 Faible','faible')">😴 Faible</button>
+          <button class="ctx-opt" onclick="setCtx('energy','🙂 Moyenne','moyenne')">🙂 Moyenne</button>
+          <button class="ctx-opt" onclick="setCtx('energy','⚡ Haute','haute')">⚡ Haute</button>
+        </div>
+      </div>
+      <div class="ctx-selector" id="sel-time">
+        <div class="ctx-options">
+          <button class="ctx-opt" onclick="setCtx('time','&lt; 1h','low')">moins d'1h</button>
+          <button class="ctx-opt" onclick="setCtx('time','1h–1h30','mid')">1h à 1h30</button>
+          <button class="ctx-opt" onclick="setCtx('time','2h+','high')">2h ou plus</button>
+          <button class="ctx-opt" onclick="setCtx('time','Journée libre','free')">Journée libre</button>
+        </div>
+      </div>
+      <div class="ctx-selector" id="sel-load">
+        <div class="ctx-options">
+          <button class="ctx-opt" onclick="setCtx('load','Légère','low')">Légère</button>
+          <button class="ctx-opt" onclick="setCtx('load','Normale','mid')">Normale</button>
+          <button class="ctx-opt" onclick="setCtx('load','Intense','high')">Intense</button>
+        </div>
+      </div>
+      <div class="ctx-selector" id="sel-focus">
+        <div class="ctx-options">
+          <button class="ctx-opt" onclick="setCtx('focus','📚 Partiels','partiels')">📚 Partiels</button>
+          <button class="ctx-opt" onclick="setCtx('focus','📝 Mémoire','memoire')">📝 Mémoire</button>
+          <button class="ctx-opt" onclick="setCtx('focus','💼 Capgemini','capgemini')">💼 Capgemini</button>
+          <button class="ctx-opt" onclick="setCtx('focus','🌿 Récupération','recup')">🌿 Récupération</button>
+        </div>
+      </div>
+
+      <button class="gen-plan-btn" onclick="buildPlan()">⭐ Générer mon plan du jour</button>
+
+      <div id="plan-output"></div>
+
+      <span class="note-lbl">Note du jour</span>
+      <textarea class="note-in" id="note-in" rows="2" placeholder="Ressenti, victoire, blocage…" oninput="saveNote()"></textarea>
+    </div>
+
+    <!-- ═══ HABITUDES ═══ -->
+    <div id="p-habits" class="pnl">
+      <div class="score-strip">
+        <div><span class="score-big" id="score-num">0</span><span class="score-denom">/6</span><div class="s-msg" id="score-msg">Commence ta journée ✨</div></div>
+        <div class="s-right"><div class="s-track"><div class="s-fill" id="s-fill" style="width:0%"></div></div></div>
+      </div>
+      <div id="habits-list"></div>
+    </div>
+
+    <!-- ═══ OBJECTIFS ═══ -->
+    <div id="p-goals" class="pnl">
+      <div id="week-prog"></div>
+      <div id="month-prog"></div>
+
+      <div class="sl">Objectifs de la semaine</div>
+      <div id="week-goals"></div>
+      <button class="add-btn" onclick="openModal('week')">+ Ajouter un objectif semaine</button>
+
+      <div class="sl">Objectifs du mois</div>
+      <div id="month-goals"></div>
+      <button class="add-btn" onclick="openModal('month')">+ Ajouter un objectif mois</button>
+    </div>
+
+    <!-- ═══ SEMAINE ═══ -->
+    <div id="p-week" class="pnl">
+      <div class="sl">7 derniers jours</div>
+      <div class="week-grid" id="week-grid"></div>
+      <div class="stat-grid" id="stat-grid"></div>
+      <div class="sl">Progression des habitudes</div>
+      <div id="prog-bars" style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:13px 15px"></div>
+    </div>
+
+    <!-- ═══ RÈGLES ═══ -->
+    <div id="p-rules" class="pnl">
+      <div class="sl">Si tu manques de temps</div>
+      <div class="rule cut"><div class="ri">1️⃣</div><div class="rt"><strong>Supprime en premier :</strong> objectifs P2 et bonus</div></div>
+      <div class="rule cut"><div class="ri">2️⃣</div><div class="rt"><strong>Réduis ensuite :</strong> Coran → 3 versets minimum</div></div>
+      <div class="rule cut"><div class="ri">3️⃣</div><div class="rt"><strong>Si épuisé :</strong> kiné → strict minimum prescrit seulement</div></div>
+      <div class="rule keep"><div class="ri">✅</div><div class="rt"><strong>Intouchables :</strong> 5 prières + 7h30 de sommeil</div></div>
+
+      <div class="sl">Modes adaptatifs</div>
+      <div class="mode-c" style="border-color:rgba(74,222,128,.2)"><div class="mode-t" style="color:#86efac">Mode Normal</div><div class="mode-d">Semaine standard — vise 6/6. Système complet.</div></div>
+      <div class="mode-c" style="border-color:rgba(201,168,76,.25)"><div class="mode-t" style="color:var(--gold2)">Mode Partiels</div><div class="mode-d">Révisions = priorité P1. Supprime P2. Objectif 5/6.</div></div>
+      <div class="mode-c" style="border-color:rgba(248,113,113,.2)"><div class="mode-t" style="color:#fca5a5">Mode Sprint mémoire</div><div class="mode-d">1h mémoire/jour impérative. Reste secondaire. Objectif 4/6.</div></div>
+      <div class="mode-c" style="border-color:rgba(139,94,60,.3)"><div class="mode-t" style="color:var(--brown2)">Mode Survie</div><div class="mode-d">Kiné + Prières + Sommeil = 3/6. C'est déjà une victoire.</div></div>
+
+      <div class="sl">Prochaines échéances</div>
+      <div class="rule deadline"><div class="ri">🔴</div><div class="rt"><strong>Lundi 22/06</strong> — Partiel Data & Business Analytics</div></div>
+      <div class="rule deadline"><div class="ri">🟡</div><div class="rt"><strong>Mercredi 24/06</strong> — Partiel Advanced Research Methods</div></div>
+      <div class="rule deadline"><div class="ri">⭐</div><div class="rt"><strong>Jeudi 24/07</strong> — Rendu mémoire complet</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OBJECTIF -->
+<div class="modal-overlay" id="modal" onclick="closeModalOut(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Nouvel objectif</div>
+    <div class="modal-sub" id="modal-sub">À cocher en fin de période</div>
+    <span class="modal-label">Objectif</span>
+    <textarea class="modal-in" id="modal-text" rows="2" placeholder="Ex : Finir le guide d'entretien du mémoire…"></textarea>
+    <span class="modal-label">Indicateur de réussite</span>
+    <textarea class="modal-in" id="modal-ind" rows="2" placeholder="Ex : 8 questions rédigées et validées"></textarea>
+    <span class="modal-label">Niveau de priorité</span>
+    <div class="modal-pills">
+      <button class="modal-pill on" data-level="P0" onclick="pickLevel(this)">P0 — Non négociable</button>
+      <button class="modal-pill" data-level="P1" onclick="pickLevel(this)">P1 — Prioritaire</button>
+      <button class="modal-pill" data-level="P2" onclick="pickLevel(this)">P2 — Bonus</button>
+    </div>
+    <div class="modal-row">
+      <button class="modal-btn modal-cancel" onclick="closeModal()">Annuler</button>
+      <button class="modal-btn modal-save" onclick="saveGoal()">Ajouter ✓</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ CONSTANTS ═══
+const HABITS = [
+  {id:'kine',    name:'Kiné',              sub:'Exercices prescrits quotidien',     b:'P0'},
+  {id:'prieres', name:'5 Prières',         sub:'Toutes les prières du jour',        b:'P0'},
+  {id:'coran',   name:'10 versets Coran',  sub:'Lecture quotidienne',               b:'P0'},
+  {id:'sommeil', name:'7h30 de sommeil',   sub:'Couché à l\'heure ce soir',        b:'P0'},
+  {id:'memoire', name:'Mémoire/Révisions', sub:'Min. 30 min de travail concentré', b:'P1'},
+  {id:'tache',   name:'Tâche pro/bonus',   sub:'1 avancée concrète',               b:'P2'},
+];
+const SMSG = ['Commence ta journée ✨','Petit départ 💪','Sans culpabilité — demain !','Tu tiens le cap','Bonne journée ✓','Excellente journée 🌟','Journée parfaite ⭐'];
+const COL = s => s>=5?'#4ade80':s>=3?'#c9a84c':'#f87171';
+
+// ═══ STATE ═══
+let off=0, D={}, G={week:[],month:[]}, ctx={energy:null,time:null,load:null,focus:null}, modalScope='week', modalLevel='P1', openCtxKey=null;
+
+// ═══ STORAGE ═══
+const k = o => { const d=new Date(); d.setDate(d.getDate()+o); return d.toISOString().split('T')[0]; };
+const dd = key => { if(!D[key]) D[key]={h:{},note:''}; return D[key]; };
+const svD = () => { try{localStorage.setItem('pos5d',JSON.stringify(D));}catch(e){} };
+const svG = () => { try{localStorage.setItem('pos5g',JSON.stringify(G));}catch(e){} };
+const ldAll = () => {
+  try{const s=localStorage.getItem('pos5d');if(s)D=JSON.parse(s);}catch(e){}
+  try{const s=localStorage.getItem('pos5g');if(s)G=JSON.parse(s);}catch(e){}
+};
+const sc = key => HABITS.reduce((s,h)=>s+(dd(key).h[h.id]?1:0),0);
+
+// ═══ DATE ═══
+const fd = o => {
+  const d=new Date(); d.setDate(d.getDate()+o);
+  const dn=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],mn=['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
+  if(o===0) return "Aujourd'hui · "+d.getDate()+' '+mn[d.getMonth()];
+  if(o===-1) return 'Hier · '+d.getDate()+' '+mn[d.getMonth()];
+  return dn[d.getDay()]+' '+d.getDate()+' '+mn[d.getMonth()];
+};
+const getWeekKey = () => { const d=new Date(),m=new Date(d); m.setDate(d.getDate()-((d.getDay()+6)%7)); return m.toISOString().split('T')[0]; };
+const getMonthKey = () => { const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1); };
+const getWeekLabel = () => {
+  const d=new Date(),m=new Date(d); m.setDate(d.getDate()-((d.getDay()+6)%7));
+  const s=new Date(m); s.setDate(m.getDate()+6);
+  const mn=['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
+  return m.getDate()+' '+mn[m.getMonth()]+' – '+s.getDate()+' '+mn[s.getMonth()];
+};
+const getMonthLabel = () => {
+  const mn=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  return mn[new Date().getMonth()]+' '+new Date().getFullYear();
+};
+
+// ═══ CONTEXT SELECTOR ═══
+function openCtx(key) {
+  if(openCtxKey===key){ closeAllCtx(); return; }
+  closeAllCtx();
+  openCtxKey=key;
+  document.getElementById('sel-'+key).classList.add('open');
+  document.getElementById('ctx-'+key).classList.add('on');
+}
+function closeAllCtx(){
+  ['energy','time','load','focus'].forEach(k=>{
+    document.getElementById('sel-'+k).classList.remove('open');
+    if(!ctx[k]) document.getElementById('ctx-'+k).classList.remove('on');
+  });
+  openCtxKey=null;
+}
+function setCtx(key, label, val){
+  ctx[key]=val;
+  document.getElementById('val-'+key).textContent=label;
+  document.getElementById('ctx-'+key).classList.add('on');
+  closeAllCtx();
+}
+
+// ═══ PLAN DU JOUR (logic locale) ═══
+function buildPlan(){
+  const energy=ctx.energy||'moyenne', time=ctx.time||'mid', load=ctx.load||'mid', focus=ctx.focus||'memoire';
+  const isLowEnergy=energy==='faible', isLowTime=time==='low', isHighLoad=load==='high';
+  const isSurvival=isLowEnergy&&isHighLoad;
+
+  // P0 — toujours
+  const p0=[
+    {task:'Réaliser les exercices de kiné',time:'20 min'},
+    {task:'Accomplir les 5 prières',time:'Variable'},
+    {task:'Lire 10 versets du Coran',time:'5–10 min'},
+    {task:'Planifier ton coucher pour 7h30 de sommeil',time:'Ce soir'},
+  ];
+
+  // P1 — selon focus et énergie
+  let p1=[];
+  if(!isSurvival){
+    if(focus==='partiels'){
+      p1=[
+        {task:'Révisions actives — 1 chapitre clé à fond',time:'45 min'},
+        isLowTime?null:{task:'Faire des questions/schémas de mémorisation',time:'20 min'},
+      ].filter(Boolean);
+    } else if(focus==='memoire'){
+      p1=[
+        {task:'Avancer sur le mémoire — 1 section concrète',time:'45 min'},
+        isLowTime?null:{task:'Relire et corriger la partie précédente',time:'20 min'},
+      ].filter(Boolean);
+    } else if(focus==='capgemini'){
+      p1=[
+        {task:'Finaliser la tâche professionnelle prioritaire',time:'45 min'},
+        isLowTime?null:{task:'Rédiger un point d\'avancement ou email important',time:'15 min'},
+      ].filter(Boolean);
+    } else {
+      p1=[{task:'Récupération active — marche légère ou étirements',time:'20 min'}];
+    }
+  }
+
+  // P2 — seulement si énergie et temps suffisants
+  let p2=[];
+  if(!isSurvival&&!isLowEnergy&&!isLowTime){
+    p2=[
+      {task:'10 min de lecture ou veille stratégique',time:'10 min'},
+    ];
+    if(time==='free'||time==='high'){
+      p2.push({task:'Avancer sur un objectif personnel (espagnol, projet…)',time:'20 min'});
+    }
+  }
+
+  // Message motivant selon contexte
+  let msg='';
+  if(isSurvival) msg='Journée difficile — protège ton P0, c\'est déjà une victoire. 💪';
+  else if(isLowEnergy) msg='Énergie basse — fais le minimum essentiel. Chaque petit geste compte.';
+  else if(focus==='partiels') msg='Focus partiels — une session solide aujourd\'hui fait une vraie différence.';
+  else if(focus==='memoire') msg='Sprint mémoire — 45 min concentrées valent mieux que 3h dispersées.';
+  else msg='Bonne journée — avance sur ce qui compte vraiment.';
+
+  renderPlan(msg, p0, p1, p2);
+}
+
+function renderPlan(msg, p0, p1, p2){
+  const out=document.getElementById('plan-output');
+  out.innerHTML='';
+
+  const msgDiv=document.createElement('div');
+  msgDiv.style.cssText='background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(139,94,60,.08));border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:12px 15px;margin-bottom:12px;font-size:14px;color:var(--gold2);font-weight:500;line-height:1.5;';
+  msgDiv.textContent='⭐ '+msg;
+  out.appendChild(msgDiv);
+
+  const sections=[
+    {items:p0, badge:'P0 — Non négociable', bClass:'b-p0', title:'Spiritualité & Santé'},
+    {items:p1, badge:'P1 — Priorité',       bClass:'b-p1', title:'Études & Mémoire'},
+    {items:p2, badge:'P2 — Bonus',          bClass:'b-p2', title:'Si énergie dispo'},
+  ];
+  sections.forEach(s=>{
+    if(!s.items.length) return;
+    const card=document.createElement('div'); card.className='card'; card.style.marginBottom='9px';
+    card.innerHTML=`<div class="card-hdr"><span class="badge ${s.bClass}">${s.badge}</span><span class="card-hdr-title">${s.title}</span></div><div class="items-wrap"></div>`;
+    const wrap=card.querySelector('.items-wrap');
+    s.items.forEach(it=>{
+      const el=document.createElement('div'); el.className='item';
+      el.innerHTML=`<div class="i-chk"><span class="i-chk-ic">✓</span></div><div class="i-body"><div class="i-text">${it.task}</div></div><span class="i-right">${it.time}</span>`;
+      el.onclick=()=>el.classList.toggle('done');
+      wrap.appendChild(el);
+    });
+    out.appendChild(card);
+  });
+}
+
+// ═══ HABITUDES ═══
+function renderHabits(){
+  const key=k(off),data=dd(key),s=sc(key),pct=Math.round(s/6*100),col=s>0?COL(s):'#3a3020';
+  document.getElementById('score-num').textContent=s+'/6';
+  document.getElementById('score-num').style.color=col;
+  document.getElementById('s-fill').style.width=pct+'%';
+  document.getElementById('s-fill').style.background=col;
+  document.getElementById('score-msg').textContent=SMSG[s];
+  const list=document.getElementById('habits-list'); list.innerHTML='';
+  HABITS.forEach(h=>{
+    const done=!!data.h[h.id],el=document.createElement('div');
+    el.className='item'+(done?' done':'');
+    el.style.cssText='background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);margin-bottom:8px;';
+    const bClass=h.b==='P0'?'b-p0':h.b==='P1'?'b-p1':'b-p2';
+    el.innerHTML=`<div class="i-chk"><span class="i-chk-ic">✓</span></div><div class="i-body"><div class="i-text">${h.name}</div><div class="i-sub">${h.sub}</div></div><span class="badge ${bClass}">${h.b}</span>`;
+    el.onclick=()=>{ data.h[h.id]=!data.h[h.id]; svD(); renderHabits(); };
+    list.appendChild(el);
+  });
+}
+
+// ═══ OBJECTIFS ═══
+function renderGoals(){
+  const wk=getWeekKey(),mk=getMonthKey();
+  const wGoals=G.week.filter(g=>g.wk===wk), mGoals=G.month.filter(g=>g.mk===mk);
+  renderProgCard('week-prog',wGoals,'Semaine','📅',getWeekLabel());
+  renderProgCard('month-prog',mGoals,'Mois','📆',getMonthLabel());
+  renderGoalList('week-goals',wGoals,'week');
+  renderGoalList('month-goals',mGoals,'month');
+}
+
+function renderProgCard(elId,goals,scope,icon,label){
+  const el=document.getElementById(elId);
+  if(!goals.length){ el.innerHTML=''; return; }
+  const done=goals.filter(g=>g.done).length,total=goals.length,pct=Math.round(done/total*100);
+  const col=pct>=80?'#4ade80':pct>=40?'#c9a84c':'#f87171';
+  const complete=done===total&&total>0;
+  el.innerHTML=`<div class="prog-card"><div class="prog-title"><span>${icon} ${scope} — ${label}</span><span class="prog-count" style="color:${col}">${done}/${total}</span></div><div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div><div class="prog-sub">${pct}% accompli${complete?' · Objectifs complétés 🌟':''}</div></div>`;
+}
+
+function renderGoalList(elId,goals,scope){
+  const el=document.getElementById(elId);
+  if(!goals.length){ el.innerHTML='<div style="text-align:center;padding:18px 0;font-size:13px;color:var(--text3)">Aucun objectif — ajoute-en ci-dessous</div>'; return; }
+  const order={P0:0,P1:1,P2:2};
+  const sorted=[...goals].sort((a,b)=>(order[a.level]||1)-(order[b.level]||1));
+  el.innerHTML='';
+  sorted.forEach(goal=>{
+    const bClass=goal.level==='P0'?'b-p0':goal.level==='P1'?'b-p1':'b-p2';
+    const card=document.createElement('div'); card.className='card'; card.style.marginBottom='8px';
+    card.innerHTML=`
+      <div class="item${goal.done?' done':''}" onclick="toggleGoal('${scope}','${goal.id}')">
+        <div class="i-chk"><span class="i-chk-ic">✓</span></div>
+        <div class="i-body">
+          <div class="i-text">${goal.emoji} ${goal.title}</div>
+          ${goal.indicator?`<div class="i-indicator">✓ ${goal.indicator}</div>`:''}
+        </div>
+        <span class="badge ${bClass}">${goal.level}</span>
+      </div>
+      <div style="display:flex;justify-content:flex-end;padding:3px 10px 7px">
+        <button onclick="delGoal('${scope}','${goal.id}')" style="background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer;font-family:inherit">Supprimer</button>
+      </div>`;
+    el.appendChild(card);
+  });
+}
+
+function toggleGoal(scope,id){ const g=G[scope].find(x=>String(x.id)===String(id)); if(g){g.done=!g.done;svG();renderGoals();} }
+function delGoal(scope,id){ G[scope]=G[scope].filter(x=>String(x.id)!==String(id)); svG(); renderGoals(); }
+
+// ═══ MODAL ═══
+function openModal(scope){
+  modalScope=scope; modalLevel='P1';
+  document.getElementById('modal-title').textContent=scope==='week'?'Objectif de la semaine':'Objectif du mois';
+  document.getElementById('modal-sub').textContent=scope==='week'?'À cocher en fin de semaine':'À cocher en fin de mois';
+  document.getElementById('modal-text').value='';
+  document.getElementById('modal-ind').value='';
+  document.querySelectorAll('.modal-pill').forEach(p=>p.classList.remove('on'));
+  document.querySelector('[data-level="P1"]').classList.add('on');
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+function closeModalOut(e){ if(e.target===document.getElementById('modal')) closeModal(); }
+function pickLevel(el){ document.querySelectorAll('.modal-pill').forEach(p=>p.classList.remove('on')); el.classList.add('on'); modalLevel=el.dataset.level; }
+function saveGoal(){
+  const text=document.getElementById('modal-text').value.trim(); if(!text) return;
+  const emojis={P0:'🔴',P1:'⭐',P2:'🌱'};
+  G[modalScope].push({id:Date.now(),title:text,indicator:document.getElementById('modal-ind').value.trim(),level:modalLevel,emoji:emojis[modalLevel]||'⭐',done:false,wk:getWeekKey(),mk:getMonthKey()});
+  svG(); renderGoals(); closeModal();
+}
+
+// ═══ WEEK STATS ═══
+function renderWeekStats(){
+  const t=new Date(),dn=['L','M','M','J','V','S','D'],grid=document.getElementById('week-grid');
+  grid.innerHTML='';
+  for(let i=-6;i<=0;i++){
+    const d=new Date(t); d.setDate(d.getDate()+i);
+    const key=d.toISOString().split('T')[0],s=sc(key),di=(d.getDay()+6)%7,it=i===0;
+    const bg=s===0?'rgba(255,255,255,.03)':COL(s)+'25',fc=s===0?'#3a3020':COL(s);
+    grid.innerHTML+=`<div class="wday"><div class="wday-lbl">${dn[di]}${it?'·':''}</div><div class="wday-pill" style="background:${bg};color:${fc};${it?'outline:1px solid '+fc:''}">${s>0?s:'—'}</div></div>`;
+  }
+  let kn=0,mn=0,pn=0,ts=0;
+  for(let i=-6;i<=0;i++){
+    const d=new Date(t); d.setDate(d.getDate()+i);
+    const data=dd(d.toISOString().split('T')[0]);
+    if(data.h.kine)kn++; if(data.h.memoire)mn++; if(data.h.prieres)pn++; ts+=sc(d.toISOString().split('T')[0]);
+  }
+  const av=(ts/7).toFixed(1),ac=parseFloat(av)>=4?'#4ade80':parseFloat(av)>=2.5?'#c9a84c':'#f87171';
+  document.getElementById('stat-grid').innerHTML=`<div class="stat-c"><div class="stat-v" style="color:${ac}">${av}</div><div class="stat-l">Score moyen 7j</div></div><div class="stat-c"><div class="stat-v" style="color:${kn>=5?'#4ade80':'#c9a84c'}">${kn}/7</div><div class="stat-l">Jours kiné</div></div>`;
+  document.getElementById('prog-bars').innerHTML=[{l:'Kiné',v:kn},{l:'Mémoire',v:mn},{l:'Prières',v:pn}].map(it=>{
+    const p=Math.round(it.v/7*100),c=p>=70?'#4ade80':p>=40?'#c9a84c':'#f87171';
+    return`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border2)"><span style="font-size:13px;color:var(--text2);min-width:75px">${it.l}</span><div style="flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden"><div style="height:100%;width:${p}%;background:${c};border-radius:2px"></div></div><span style="font-size:12px;color:var(--text2);min-width:26px;text-align:right">${it.v}/7</span></div>`;
+  }).join('')+'<div style="height:1px"></div>';
+}
+
+// ═══ NAV ═══
+function cd(dir){ if(off+dir>0)return; off+=dir; ra(); }
+function sw(tab,el){
+  document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('p-'+tab).classList.add('on'); el.classList.add('on');
+}
+function saveNote(){ dd(k(off)).note=document.getElementById('note-in').value; svD(); }
+function ra(){
+  document.getElementById('hdate').textContent=fd(off);
+  document.getElementById('note-in').value=dd(k(off)).note||'';
+  renderHabits(); renderWeekStats(); renderGoals();
+}
+
+// ═══ PWA ═══
+let dp=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;document.getElementById('ib').style.display='block';document.getElementById('ibhint').textContent="Accès direct depuis l'écran d'accueil, sans navigateur";});
+document.getElementById('ibtn').onclick=async()=>{ if(dp){dp.prompt();await dp.userChoice;dp=null;document.getElementById('ib').style.display='none';} };
+if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.matchMedia('(display-mode:standalone)').matches&&!navigator.standalone){
+  document.getElementById('ib').style.display='block';
+  document.getElementById('ibhint').textContent="Appuie sur Partager ⎙ puis 'Sur l'écran d'accueil'";
+}
+if('serviceWorker' in navigator){
+  const swc=`const C='pos-v5';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.add('/')));self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim()});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))})`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([swc],{type:'application/javascript'})));
+}
+const mf={name:'Personal OS',short_name:'Personal OS',start_url:'.',display:'standalone',background_color:'#0f0d0a',theme_color:'#0f0d0a',icons:[{src:`data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='42' fill='%231a1510'/><polygon points='96,28 108,66 148,66 117,89 129,127 96,104 63,127 75,89 44,66 84,66' fill='%23c9a84c'/><circle cx='96' cy='96' r='10' fill='%23f5d98b' opacity='0.9'/></svg>`,sizes:'192x192',type:'image/svg+xml'}]};
+const ml=document.createElement('link');ml.rel='manifest';ml.href='data:application/json,'+encodeURIComponent(JSON.stringify(mf));document.head.appendChild(ml);
+
+ldAll(); ra();
+</script>
+</body>
+</html>
